@@ -8,6 +8,7 @@ categories: []
 tags: []
 ---
 
-Since I have been hearing a lot about virtues of [Blogdown](https://github.com/rstudio/blogdown) in various forums, I thought I will also give it a shot. I am planning to do my future blog posts in blogdown.
+Since I have been hearing a lot about virtues of [Blogdown](https://github.com/rstudio/blogdown) in various forums, I thought I will also give it a shot. I am planning to do my future blog posts in blogdown. I used to have my [older site](http://notesofdabbler.wordpress.com) in Wordpress. But I don't have plans at least in the near term to migrate the older content. 
 
 
+{{% disqus %}}
