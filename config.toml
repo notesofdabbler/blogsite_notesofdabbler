@@ -1,4 +1,4 @@
-theme = "mainroad"
+theme = "Mainroad"
 baseurl = "/"
 relativeurls = true
 languageCode = "en-us"
@@ -56,15 +56,4 @@ ignoreFiles = ["\\.Rmd$", "_files$", "_cache$"]
     alt = "Logo"
     
       
-    [params.sidebar]
-        num_recent_posts = 5
-
-[[menu.sidebar]]
-  name = "Link 1"
-  url = "https://example.com"
-
-[[menu.sidebar]]
-  name = "Link 2"
-  url = "https://example.org"
-  
 
