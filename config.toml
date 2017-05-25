@@ -1,4 +1,4 @@
-theme = "Mainroad"
+theme = "blackburn"
 baseurl = "/"
 relativeurls = true
 languageCode = "en-us"
@@ -26,16 +26,6 @@ ignoreFiles = ["\\.Rmd$", "_files$", "_cache$"]
     url = "https://github.com/notesofdabbler"
     weight = 4
     
-[Params.widgets]
-    search = true # Enable "Search" widget
-    recent_articles = true # Enable "Recent arcticles" widget
-    categories = true # Enable "Categories" widget
-    tags = true # Enable "Tags" widget
-        tags_counter = false # Enable counter for each tag in "Tags" widget (disabled by default)
-
-
-   
-
 
 [params]
     description = "Wandering through the beautiful world of math, computation and visualization"
