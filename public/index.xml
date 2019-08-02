@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Notes of a Dabbler</title>
+    <link>/</link>
+    <description>Recent content on Notes of a Dabbler</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 01 Apr 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Fastai Collaborative Filtering with R and Reticulate</title>
+      <link>/2018/04/01/fastaicollabfilterr/</link>
+      <pubDate>Sun, 01 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/04/01/fastaicollabfilterr/</guid>
+      <description>Jeremy Howard and Rachel Thomas are founders of fast.ai whose aim is to make deep learning accessible to all. They offer a course called Practical Deep Learning for Coders (Part 1). The last session, taught by Jeremy, was in Fall 2017 and the videos were released early January 2018. Their approach is top down by showing different applications first as black boxes followed by progressive peeling of the black box to teach the details of how things work.</description>
+    </item>
+    
+    <item>
+      <title>Exploring Instacart Data with PCA</title>
+      <link>/2017/05/22/exploreinstacart/</link>
+      <pubDate>Mon, 22 May 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/2017/05/22/exploreinstacart/</guid>
+      <description>Recently, Instacart released a dataset of ~3 million orders made by ~200,000 users at different days of week and times of day. There is also an ongoing Kaggle competition to predict which products a user will buy again. My goal here is more modest where I just wanted to explore the dataset to find patterns of purchasing behaviour by hour of day, day of week and number of days since prior order.</description>
+    </item>
+    
+    <item>
+      <title>My First Blogdown Post</title>
+      <link>/2017/05/15/myfirstblogdownpost/</link>
+      <pubDate>Mon, 15 May 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/2017/05/15/myfirstblogdownpost/</guid>
+      <description>Since I have been hearing a lot about virtues of Blogdown in various forums, I thought I will also give it a shot. I am planning to do my future blog posts in blogdown. I used to have my older site in Wordpress. But I don’t have plans at least in the near term to migrate the older content.
+  (function() { var d = document, s = d.createElement(&#39;script&#39;); s.</description>
+    </item>
+    
+    <item>
+      <title>About</title>
+      <link>/about/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/about/</guid>
+      <description>This blog is to catalog my learnings from others in topics related to R, Julia, Python, math, computations and visualizations.My older posts are in a blog in wordpress site. All views expressed here are my own and not representing anybody else (individual or company).
+Shankar Vaidyaraman</description>
+    </item>
+    
+    <item>
+      <title>Links</title>
+      <link>/links/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/links/</guid>
+      <description>R Bloggers</description>
+    </item>
+    
+  </channel>
+</rss>

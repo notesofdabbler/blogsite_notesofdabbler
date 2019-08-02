@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="generator" content="Hugo 0.20.7" />
+
+  <title>Fastai Collaborative Filtering with R and Reticulate &middot; Notes of a Dabbler</title>
+
+  
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/pure-min.css">
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-old-ie-min.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-min.css">
+  <!--<![endif]-->
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="../../../../css/side-menu-old-ie.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="../../../../css/side-menu.css">
+  <!--<![endif]-->
+
+  <link rel="stylesheet" href="../../../../css/blackburn.css">
+
+  
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet" type="text/css">
+
+  
+  
+
+  
+
+  <link rel="shortcut icon" href="../../../../img/favicon.ico" type="image/x-icon" />
+
+  
+  
+
+</head>
+
+
+<body>
+<div id="layout">
+
+  
+<a href="#menu" id="menuLink" class="menu-link">
+  
+  <span></span>
+</a>
+<div id="menu">
+
+  
+
+  <div class="pure-menu">
+    <ul class="pure-menu-list">
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="../../../../">Home</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="../../../../links/">Links</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="../../../../about/">About</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="https://github.com/notesofdabbler">GitHub</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="https://www.r-bloggers.com">R-bloggers</a>
+      
+        </li>
+      
+    </ul>
+  </div>
+
+  <div class="pure-menu social">
+  <ul class="pure-menu-list">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+  </ul>
+</div>
+
+
+  <div>
+  <div class="small-print">
+    <small></small>
+  </div>
+  <div class="small-print">
+    <small>Built with&nbsp;<a href="https://gohugo.io/" target="_blank">Hugo</a></small>
+    <small>Theme&nbsp;<a href="https://github.com/yoshiharuyamashita/blackburn" target="_blank">Blackburn</a></small>
+  </div>
+</div>
+
+</div>
+
+
+  <div id="main">
+
+
+<div class="header">
+  <h1>Fastai Collaborative Filtering with R and Reticulate</h1>
+  <h2></h2>
+</div>
+<div class="content">
+
+  <div class="post-meta">
+
+  <div>
+    <i class="fa fa-calendar fa-fw"></i>
+    <time>01 Apr 2018, 00:00</time>
+  </div>
+
+  
+
+  
+
+  
+  
+  
+  <div>
+    <i class="fa fa-tags fa-fw"></i>
+    
+      <a class="post-taxonomy-tag" href="../../../../tags/r">R</a>
+    
+  </div>
+  
+  
+
+</div>
+
+  <p>Jeremy Howard and Rachel Thomas are founders of <a href="http://www.fast.ai/">fast.ai</a> whose aim is to make deep learning accessible to all. They offer a course called <a href="http://course.fast.ai/">Practical Deep Learning for Coders (Part 1)</a>. The last session, taught by Jeremy, was in Fall 2017 and the videos were released early January 2018. Their approach is top down by showing different applications first as black boxes followed by progressive peeling of the black box to teach the details of how things work. The course uses python and they have developed a python library <a href="https://github.com/fastai/fastai/tree/master/fastai">fastai</a> that is a wrapper around <a href="http://pytorch.org/">PyTorch</a>.</p>
+<p>I wanted to learn reticulate by trying to create a R version of one of the python notebooks from that class. The class covers the topic of collaborative filtering in <a href="http://course.fast.ai/lessons/lesson5.html">lecture 5</a> and <a href="http://course.fast.ai/lessons/lesson6.html">lecture 6</a>. The dataset used is a sample of <a href="http://files.grouplens.org/datasets/movielens/ml-latest-small.zip">movielens dataset</a> where about ~670 users have rated ~9000 movies. The objective is to develop a model to predict the rating that a user will give for a particular movie.</p>
+<p>The <a href="https://github.com/fastai/fastai/blob/master/courses/dl1/lesson5-movielens.ipynb">Jupyter notebook</a> for this topic is divided into 2 portions:</p>
+<ul>
+<li>In the first half, the model is developed using just high level fastai functions. The R notebook for the first half is located <a href="https://notesofdabbler.github.io/fastai_dl1_withR/movieLens.nb.html">here</a>.</li>
+<li>In the second half, the model is developed from scratch and 3 different types of models are discussed going from matrix factorization type model to deep learning type models. The R notebook for the second half is located <a href="https://notesofdabbler.github.io/fastai_dl1_withR/movieLens_from_Scratch.nb.html">here</a>.</li>
+</ul>
+<p>Since the first half involved mainly python functions from fastai library, it seemed like a good use case for reticulate since we could use reticulate just for model development and use R functions for other pre and post processing tasks. The second half involved model building from scratch. In pyTorch, custom models need to be written as python classes. While it was still possible to use reticulate in this case, this may not be the ideal use case since it might be better for somebody developing custom models to do the whole work in python. But once they wrap it into a python package, it is easier to use from R. Overall, reticulate was great to work with and it made it very easy to translate a python function to an equivalent R function. It is a great addition to the R packages.</p>
+<div id="disqus_thread"></div>
+<script>
+(function() {
+var d = document, s = d.createElement('script');
+s.src = 'https://notesofdabbler.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+  
+<div class="prev-next-post pure-g">
+  <div class="pure-u-1-24" style="text-align: left;">
+    
+    <a href="../../../../2017/05/22/exploreinstacart/"><i class="fa fa-chevron-left"></i></a>
+    
+  </div>
+  <div class="pure-u-10-24">
+    
+    <nav class="prev">
+      <a href="../../../../2017/05/22/exploreinstacart/">Exploring Instacart Data with PCA</a>
+    </nav>
+    
+  </div>
+  <div class="pure-u-2-24">
+    &nbsp;
+  </div>
+  <div class="pure-u-10-24">
+    
+  </div>
+  <div class="pure-u-1-24" style="text-align: right;">
+    
+  </div>
+</div>
+
+
+
+  <div id="disqus_thread"></div>
+<script>
+(function() {
+var d = document, s = d.createElement('script');
+s.src = 'https://notesofdabbler.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+</div>
+</div>
+<script src="../../../../js/ui.js"></script>
+
+
+
+
+</body>
+</html>
+
