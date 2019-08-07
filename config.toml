@@ -1,5 +1,5 @@
 theme = "blackburn"
-baseurl = "/"
+baseurl = "http://www.notesofdabbler.com"
 relativeurls = true
 languageCode = "en-us"
 title = "Notes of a Dabbler"
