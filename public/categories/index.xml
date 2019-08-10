@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Categories on Notes of a Dabbler</title>
@@ -22,7 +21,3 @@
     
   </channel>
 </rss>
-Reference your RSS Feed in <head>
-In your header.html template, you can specify your RSS feed in your <head></head> tag using Hugo’s Output Formats like this:
-
-<link rel="canonical" type="text/html" href="/categories/" title="Notes of a Dabbler" />
