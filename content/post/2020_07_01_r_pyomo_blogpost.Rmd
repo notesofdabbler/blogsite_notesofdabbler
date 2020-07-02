@@ -82,7 +82,8 @@ res = solver$solve(M, logfile = 'tmp.log')
 ```
 Since the console output from solver doesn't show in R markdown output, I wrote it to a temporary file and read it back again.
 ```{r}
-cat(paste(readLines("tmp.log"), collapse = "\n"))
+x = paste(readLines("tmp.log", encoding = "UTF-8"))
+writeLines(x[2:63]) # lines 1 and 64 cause encoding issues in blog rendering
 ```
 
 The solution of the model can be access using the defined variables of the model
@@ -222,10 +223,14 @@ Since this a linear program, we use the open-source solver [glpk](https://www.gn
 # solve using solver glpk
 opt = pyo$SolverFactory('glpk')
 results = opt$solve(M, logfile = "tmp.log")
-cat(paste(readLines("tmp.log"), collapse = "\n"))
 ```
 
-Next we display the results. It is a bit more verbose since we worked with the option of `convert = FALSE` resulting in explicitly extracting desired values.
+Optimal shipping cost based on solving this problem is:
+```{python}
+r.M.objective()
+```
+
+Next we display the shipment quantities. It is a bit more verbose since we worked with the option of `convert = FALSE` resulting in explicitly extracting desired values.
 ```{r}
 res_L = list()
 k = 1
