@@ -1,0 +1,30 @@
+Solver command line: ['/opt/anaconda3/bin/glpsol', '--write', '/var/folders/h0/0h0h0yrs6f76syrmv1_q13mw0000gn/T/tmpxcmezycg.glpk.raw', '--wglp', '/var/folders/h0/0h0h0yrs6f76syrmv1_q13mw0000gn/T/tmppk6lx9f5.glpk.glp', '--cpxlp', '/var/folders/h0/0h0h0yrs6f76syrmv1_q13mw0000gn/T/tmp730zqy7u.pyomo.lp']
+
+GLPSOL: GLPK LP/MIP Solver, v4.65
+Parameter(s) specified in the command line:
+ --write /var/folders/h0/0h0h0yrs6f76syrmv1_q13mw0000gn/T/tmpxcmezycg.glpk.raw
+ --wglp /var/folders/h0/0h0h0yrs6f76syrmv1_q13mw0000gn/T/tmppk6lx9f5.glpk.glp
+ --cpxlp /var/folders/h0/0h0h0yrs6f76syrmv1_q13mw0000gn/T/tmp730zqy7u.pyomo.lp
+Reading problem data from '/var/folders/h0/0h0h0yrs6f76syrmv1_q13mw0000gn/T/tmp730zqy7u.pyomo.lp'...
+6 rows, 7 columns, 13 non-zeros
+51 lines were read
+Writing problem data to '/var/folders/h0/0h0h0yrs6f76syrmv1_q13mw0000gn/T/tmppk6lx9f5.glpk.glp'...
+41 lines were written
+GLPK Simplex Optimizer, v4.65
+6 rows, 7 columns, 13 non-zeros
+Preprocessing...
+5 rows, 6 columns, 12 non-zeros
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  1.000e+00  ratio =  1.000e+00
+Problem data seem to be well scaled
+Constructing initial basis...
+Size of triangular part is 5
+      0: obj =   0.000000000e+00 inf =   9.000e+02 (3)
+      4: obj =   1.662750000e+05 inf =   0.000e+00 (0)
+*     6: obj =   1.536750000e+05 inf =   0.000e+00 (0)
+OPTIMAL LP SOLUTION FOUND
+Time used:   0.0 secs
+Memory used: 0.0 Mb (40517 bytes)
+Writing basic solution to '/var/folders/h0/0h0h0yrs6f76syrmv1_q13mw0000gn/T/tmpxcmezycg.glpk.raw'...
+22 lines were written
+

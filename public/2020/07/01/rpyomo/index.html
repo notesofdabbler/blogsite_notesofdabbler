@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="generator" content="Hugo 0.20.7" />
+
+  <title>Using Pyomo from R through the magic of Reticulate &middot; Notes of a Dabbler</title>
+
+  
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/pure-min.css">
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-old-ie-min.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-min.css">
+  <!--<![endif]-->
+
+  <!--[if lte IE 8]>
+  <link rel="stylesheet" href="../../../../css/side-menu-old-ie.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+  <link rel="stylesheet" href="../../../../css/side-menu.css">
+  <!--<![endif]-->
+
+  <link rel="stylesheet" href="../../../../css/blackburn.css">
+
+  
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  
+  <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet" type="text/css">
+
+  
+  
+
+  
+
+  <link rel="shortcut icon" href="../../../../img/favicon.ico" type="image/x-icon" />
+
+  
+  
+
+</head>
+
+
+<body>
+<div id="layout">
+
+  
+<a href="#menu" id="menuLink" class="menu-link">
+  
+  <span></span>
+</a>
+<div id="menu">
+
+  
+
+  <div class="pure-menu">
+    <ul class="pure-menu-list">
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="../../../../">Home</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="../../../../links/">Links</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="../../../../about/">About</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="https://github.com/notesofdabbler">GitHub</a>
+      
+        </li>
+      
+      
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="https://www.r-bloggers.com">R-bloggers</a>
+      
+        </li>
+      
+    </ul>
+  </div>
+
+  <div class="pure-menu social">
+  <ul class="pure-menu-list">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+  </ul>
+</div>
+
+
+  <div>
+  <div class="small-print">
+    <small></small>
+  </div>
+  <div class="small-print">
+    <small>Built with&nbsp;<a href="https://gohugo.io/" target="_blank">Hugo</a></small>
+    <small>Theme&nbsp;<a href="https://github.com/yoshiharuyamashita/blackburn" target="_blank">Blackburn</a></small>
+  </div>
+</div>
+
+</div>
+
+
+  <div id="main">
+
+
+<div class="header">
+  <h1>Using Pyomo from R through the magic of Reticulate</h1>
+  <h2></h2>
+</div>
+<div class="content">
+
+  <div class="post-meta">
+
+  <div>
+    <i class="fa fa-calendar fa-fw"></i>
+    <time>01 Jul 2020, 00:00</time>
+  </div>
+
+  
+
+  
+
+  
+  
+  
+  <div>
+    <i class="fa fa-tags fa-fw"></i>
+    
+      <a class="post-taxonomy-tag" href="../../../../tags/r">R</a>
+    
+  </div>
+  
+  
+
+</div>
+
+  <p><a href="http://www.pyomo.org/">Pyomo</a> is a python based open-source package for modeling optimization problems. It makes it easy to represent optimization problems and can send it to different solvers (both open-source and commercial) to solve the problem and return the results in python. The advantage of pyomo compared to commercial software such as <a href="https://www.gams.com/">GAMS</a> and <a href="https://ampl.com/">AMPL</a> is the ability to code using standard python syntax (with some modifications for pyomo constructs). Another open source package for modeling optimization problems is <a href="https://jump.dev/JuMP.jl/v0.19.0/index.html">JuMP</a> in Julia language.</p>
+<p>My goal in this blog is to see how far I can get in terms of using Pyomo from R using the <a href="https://rstudio.github.io/reticulate/">reticulate</a> package. The simplest option would be to develop the model in pyomo and call it from R using reticulate. However, it still requires writing the pyomo model in python. I want to use reticulate to write the pyomo model using R. In this blog post, I describe two examples in detail where I developed the pyomo model in R and discuss my learnings. I first discuss set-up in terms of packages needed followed by discussion of the two examples.</p>
+<div id="set-up" class="section level3">
+<h3>Set-up</h3>
+<pre class="r"><code># load libraries
+library(reticulate)
+library(dplyr)
+library(tidyr)
+library(ggplot2)</code></pre>
+<p>For using pyomo package through reticulate, it is necessary to have python and pyomo already installed. We can import pyomo as follows:</p>
+<pre class="r"><code># Import pyomo
+pyo = import(&quot;pyomo.environ&quot;, convert = FALSE)
+bi = import_builtins()</code></pre>
+<p>When trying different examples, I saw some issues when not using the <code>convert = FALSE</code> option and so started using this option when importing pyomo.</p>
+<p>I also ran into some signal handling errors when using pyomo solvers. I added the following two commands to turn off signal handling (based on this <a href="https://github.com/PyUtilib/pyutilib/issues/31">thread</a>). It seems to have worked but I don’t know yet if it has other side effects.</p>
+<pre class="r"><code>pyulib = import(&quot;pyutilib.subprocess.GlobalData&quot;)
+pyulib$DEFINE_SIGNAL_HANDLERS_DEFAULT = FALSE</code></pre>
+</div>
+<div id="example-1-rosenbrock-problem-unconstrained-nonlinear-optimization" class="section level3">
+<h3>Example 1: Rosenbrock Problem (Unconstrained Nonlinear Optimization)</h3>
+<p>The first example is a unconstrained nonlinear minimization of <a href="https://en.wikipedia.org/wiki/Rosenbrock_function">rosenbrock function</a>
+<span class="math display">\[
+\min \;\; (x - 1)^2 + 100(y - x^2)^2
+\]</span>
+Since arithmetic operators in pyomo are overloaded to generate pyomo expressions, I wrote functions for <a href="https://github.com/notesofdabbler/R_pyomo/blob/master/operators.R">arithmetic operators</a> based on this <a href="https://github.com/rstudio/reticulate/issues/170">discussion thread</a> and sourced them here.</p>
+<pre class="r"><code>source(&quot;operators.R&quot;)</code></pre>
+<p>The pyomo model using python for this problem is in this <a href="https://github.com/notesofdabbler/R_pyomo/blob/master/python_codes/rosen.ipynb">location</a>. Reticulate makes it easy to write code close to what it is in python (with certain modifications)</p>
+<pre class="r"><code># Create model object
+M = pyo$ConcreteModel()
+
+# Define and initialize the variables*
+M$x = pyo$Var(initialize = 1.5)
+M$y = pyo$Var(initialize = 1.5)
+
+# Define the objective function
+M$obj = pyo$Objective(expr = (1 - M$x)**2 + 100 * (M$y - M$x**2)**2)</code></pre>
+<p>We can check the model that has been created with the <code>pprint</code> command. While the R command <code>M$pprint()</code> works and shows output in the console, I couldn’t get it to show in the R markdown output. So I am using the python chunk to show the output.</p>
+<pre class="python"><code>r.M.pprint()</code></pre>
+<pre><code>## 2 Var Declarations
+##     x : Size=1, Index=None
+##         Key  : Lower : Value : Upper : Fixed : Stale : Domain
+##         None :  None :   1.5 :  None : False : False :  Reals
+##     y : Size=1, Index=None
+##         Key  : Lower : Value : Upper : Fixed : Stale : Domain
+##         None :  None :   1.5 :  None : False : False :  Reals
+## 
+## 1 Objective Declarations
+##     obj : Size=1, Index=None, Active=True
+##         Key  : Active : Sense    : Expression
+##         None :   True : minimize : (1.0 - x)**2.0 + 100.0*(y - x**2.0)**2.0
+## 
+## 3 Declarations: x y obj</code></pre>
+<p>Pyomo can interface with different open-source and commercial solvers depending on the type of optimization problem. Since this is a nonlinear problem, we use the open-source solver <a href="https://github.com/coin-or/Ipopt">IPOPT</a> to solve the problem. Usually solvers have to be separately installed to be used with pyomo.</p>
+<pre class="r"><code>solver = pyo$SolverFactory(&quot;ipopt&quot;)
+res = solver$solve(M, logfile = &#39;tmp.log&#39;)</code></pre>
+<p>Since the console output from solver doesn’t show in R markdown output, I wrote it to a temporary file and read it back again.</p>
+<pre class="r"><code>cat(paste(readLines(&quot;tmp.log&quot;), collapse = &quot;\n&quot;))</code></pre>
+<pre><code>## Solver command line: [&#39;/opt/anaconda3/bin/ipopt&#39;, &#39;/var/folders/h0/0h0h0yrs6f76syrmv1_q13mw0000gn/T/tmp26twgeku.pyomo.nl&#39;, &#39;-AMPL&#39;]
+## 
+## Ipopt 3.12.12: 
+## 
+## ******************************************************************************
+## This program contains Ipopt, a library for large-scale nonlinear optimization.
+##  Ipopt is released as open source code under the Eclipse Public License (EPL).
+##          For more information visit http://projects.coin-or.org/Ipopt
+## ******************************************************************************
+## 
+## This is Ipopt version 3.12.12, running with linear solver mumps.
+## NOTE: Other linear solvers might be more efficient (see Ipopt documentation).
+## 
+## Number of nonzeros in equality constraint Jacobian...:        0
+## Number of nonzeros in inequality constraint Jacobian.:        0
+## Number of nonzeros in Lagrangian Hessian.............:        3
+## 
+## Total number of variables............................:        2
+##                      variables with only lower bounds:        0
+##                 variables with lower and upper bounds:        0
+##                      variables with only upper bounds:        0
+## Total number of equality constraints.................:        0
+## Total number of inequality constraints...............:        0
+##         inequality constraints with only lower bounds:        0
+##    inequality constraints with lower and upper bounds:        0
+##         inequality constraints with only upper bounds:        0
+## 
+## iter    objective    inf_pr   inf_du lg(mu)  ||d||  lg(rg) alpha_du alpha_pr  ls
+##    0  5.6500000e+01 0.00e+00 1.00e+02  -1.0 0.00e+00    -  0.00e+00 0.00e+00   0
+##    1  2.4669972e-01 0.00e+00 2.22e-01  -1.0 7.40e-01    -  1.00e+00 1.00e+00f  1
+##    2  1.6256267e-01 0.00e+00 2.04e+00  -1.7 1.48e+00    -  1.00e+00 2.50e-01f  3
+##    3  8.6119444e-02 0.00e+00 1.08e+00  -1.7 2.36e-01    -  1.00e+00 1.00e+00f  1
+##    4  4.3223836e-02 0.00e+00 1.23e+00  -1.7 2.61e-01    -  1.00e+00 1.00e+00f  1
+##    5  1.5610508e-02 0.00e+00 3.54e-01  -1.7 1.18e-01    -  1.00e+00 1.00e+00f  1
+##    6  5.3544798e-03 0.00e+00 5.51e-01  -1.7 1.67e-01    -  1.00e+00 1.00e+00f  1
+##    7  6.1281576e-04 0.00e+00 5.19e-02  -1.7 3.87e-02    -  1.00e+00 1.00e+00f  1
+##    8  2.8893076e-05 0.00e+00 4.52e-02  -2.5 4.53e-02    -  1.00e+00 1.00e+00f  1
+##    9  3.4591761e-08 0.00e+00 3.80e-04  -2.5 3.18e-03    -  1.00e+00 1.00e+00f  1
+## iter    objective    inf_pr   inf_du lg(mu)  ||d||  lg(rg) alpha_du alpha_pr  ls
+##   10  1.2680803e-13 0.00e+00 3.02e-06  -5.7 3.62e-04    -  1.00e+00 1.00e+00f  1
+##   11  7.0136460e-25 0.00e+00 1.72e-12  -8.6 2.13e-07    -  1.00e+00 1.00e+00f  1
+## 
+## Number of Iterations....: 11
+## 
+##                                    (scaled)                 (unscaled)
+## Objective...............:   1.5551321399859192e-25    7.0136459513364959e-25
+## Dual infeasibility......:   1.7239720368203862e-12    7.7751138860599418e-12
+## Constraint violation....:   0.0000000000000000e+00    0.0000000000000000e+00
+## Complementarity.........:   0.0000000000000000e+00    0.0000000000000000e+00
+## Overall NLP error.......:   1.7239720368203862e-12    7.7751138860599418e-12
+## 
+## 
+## Number of objective function evaluations             = 18
+## Number of objective gradient evaluations             = 12
+## Number of equality constraint evaluations            = 0
+## Number of inequality constraint evaluations          = 0
+## Number of equality constraint Jacobian evaluations   = 0
+## Number of inequality constraint Jacobian evaluations = 0
+## Number of Lagrangian Hessian evaluations             = 11
+## Total CPU secs in IPOPT (w/o function evaluations)   =      0.041
+## Total CPU secs in NLP function evaluations           =      0.000
+## 
+## EXIT: Optimal Solution Found.
+## </code></pre>
+<p>The solution of the model can be access using the defined variables of the model</p>
+<pre class="r"><code># Display model solution
+M$x(); M$y()</code></pre>
+<pre><code>## 1.0000000000008233</code></pre>
+<pre><code>## 1.0000000000016314</code></pre>
+</div>
+<div id="example-2-transportation-problem-linear-programming" class="section level3">
+<h3>Example 2: Transportation Problem (Linear Programming)</h3>
+<p>Given a set of markets with demands and plants that can supply the demands, the goal in the transportation problem is to determine minimum cost shipping scenario that meets market demands while satisfying supply capacity of plants. The python pyomo version of this example is in this <a href="https://nbviewer.jupyter.org/github/Pyomo/PyomoGallery/blob/master/transport/transport.ipynb">location</a>. The decision variables and parameters of the problem are:</p>
+<ul>
+<li>Decision Variable: <span class="math inline">\(x_{ij}\)</span> - quantity shipped from plant <span class="math inline">\(i\)</span> to market <span class="math inline">\(j\)</span></li>
+<li>Parameters:
+<ul>
+<li><span class="math inline">\(P\)</span> - number of plants, <span class="math inline">\(M\)</span> - number of markets</li>
+<li><span class="math inline">\(c_{ij}\)</span> - cost of shipping per unit from plant <span class="math inline">\(i\)</span> to market <span class="math inline">\(j\)</span></li>
+<li><span class="math inline">\(Cap_i\)</span> - capacity of plant <span class="math inline">\(i\)</span></li>
+<li><span class="math inline">\(Dem_j\)</span> - demand in market <span class="math inline">\(j\)</span></li>
+</ul></li>
+</ul>
+<p>The mathematical formulation of the problem is:
+<span class="math display">\[
+\mbox{(Minimize Cost)}\;\;\min \;\; \sum_{i=1}^P\sum_{j=1}^Mc_{ij}x_{ij}  \\
+\mbox{(Supply from a plant below capacity)} \;\;\sum_{j=1}^Mx_{ij} \leq Cap_i, \;\; i=1,2,\ldots,P \\
+\mbox{(Supply to a market meets demand)}\;\;\sum_{i=1}^Px_{ij} \geq Dem_j, \;\; j=1,2,\ldots,M \\
+\mbox{(shipments are non-negative)}\;\;x_{ij}\geq 0, \;\; i=1,2,\ldots,P, \;\; j=1,2,\ldots,M
+\]</span></p>
+<p>Cost is a dictionary where keys are tuples of the form (plant, market). I couldn’t figure out how to specify a R list that would translate to such a dictionary in python. So I used a round about way by converting a tibble to a pandas dataframe to a dictionary.</p>
+<pre class="r"><code># shipping cost between plants and markets
+costdf = tribble(
+  ~plants, ~mkts, ~dtab,
+  &quot;seattle&quot;, &quot;new-york&quot;, 2.5,
+  &quot;seattle&quot;, &quot;chicago&quot;, 1.7,
+  &quot;seattle&quot;, &quot;topeka&quot;, 1.8,
+  &quot;san-diego&quot;, &quot;new-york&quot;, 2.5,
+  &quot;san-diego&quot;, &quot;chicago&quot;, 1.8,
+  &quot;san-diego&quot;, &quot;topeka&quot;, 1.4
+)
+
+costdf = costdf %&gt;% mutate(cost = dtab * 90)
+
+dict_from_df = function(df) {
+  names(df) = c(&quot;x&quot;, &quot;y&quot;, &quot;z&quot;)
+  dfpy = r_to_py(df)$set_index(c(&quot;x&quot;, &quot;y&quot;))
+  dfdict = dfpy$to_dict()[&quot;z&quot;]
+  return(dfdict)
+}
+
+cost = dict_from_df(costdf %&gt;% select(plants, mkts, cost))
+cost</code></pre>
+<pre><code>## {(&#39;seattle&#39;, &#39;new-york&#39;): 225.0, (&#39;seattle&#39;, &#39;chicago&#39;): 153.0, (&#39;seattle&#39;, &#39;topeka&#39;): 162.0, (&#39;san-diego&#39;, &#39;new-york&#39;): 225.0, (&#39;san-diego&#39;, &#39;chicago&#39;): 162.0, (&#39;san-diego&#39;, &#39;topeka&#39;): 125.99999999999999}</code></pre>
+<p>Next, we create a model object and define the parameters and decision variables</p>
+<pre class="r"><code># create the model object
+M = pyo$ConcreteModel()
+
+# set the model parameters
+M$plants = pyo$Set(initialize = c(&quot;seattle&quot;, &quot;san-diego&quot;))
+M$mkts = pyo$Set(initialize = c(&quot;new-york&quot;, &quot;chicago&quot;, &quot;topeka&quot;))
+
+M$cap = pyo$Param(M$plants, initialize = list(&quot;seattle&quot; = 350, &quot;san-diego&quot; = 600))
+M$dem = pyo$Param(M$mkts, initialize = list(&quot;new-york&quot; = 325, &quot;chicago&quot; = 300, &quot;topeka&quot; = 275))
+M$cost = pyo$Param(M$plants, M$mkts, initialize = cost)
+
+# define the model decision variables (shipment quantities between a plant and market)
+# bounds specify that x&gt;=0
+M$x = pyo$Var(M$plants, M$mkts, bounds = tuple(0, NULL))</code></pre>
+<p>Next, we will set the constraint on supply from plants being below their capacities. In pyomo, the constraints can be described with a function that describes the rule to construct the constraint. In python pyomo, the supply constraint will be listed as follows:</p>
+<pre><code>def supply_rule(m, i):
+    expr = sum(m.x[i, j] for j in mkts) &lt;= cap[i]
+    return expr
+M.supply_cons = pyo.Constraint(plants, rule = supply_rule)</code></pre>
+<p>The function <code>supply_rule</code> is a function that tells what the constraint expression is for a particular plant <span class="math inline">\(i\)</span>. Then <code>M.supply_cons</code> line ensures that the constraint is generated for each of the plants. Python shines here since this is represented succintly using list comprehensions. Since I am not sure how to do an equivalent representation using R, I used loops in the function to construct the constraint. I also wasn’t sure if using R function to represent the rule will work when passing the R function to create the supply constraint. But it worked fine and I guess that’s the magic of reticulate. Below is the supply constraint constructed in R.</p>
+<pre class="r"><code># supply from plant &lt;= plant capacity
+supply_rule = function(m, i) {
+  supply = 0
+  for (j in bi$list(m$mkts)) {
+    supply = supply + m$x[tuple(i, j)]
+  }
+  expr = supply &lt;= m$cap[[i]]
+  return(expr)
+}
+M$supply_cons = pyo$Constraint(M$plants, rule = supply_rule)</code></pre>
+<p>We can check if the supply constraint is constructed correctly</p>
+<pre class="python"><code>r.M.supply_cons.pprint()</code></pre>
+<pre><code>## supply_cons : Size=2, Index=plants, Active=True
+##     Key       : Lower : Body                                                               : Upper : Active
+##     san-diego :  -Inf : x[san-diego,new-york] + x[san-diego,chicago] + x[san-diego,topeka] : 600.0 :   True
+##       seattle :  -Inf :       x[seattle,new-york] + x[seattle,chicago] + x[seattle,topeka] : 350.0 :   True</code></pre>
+<p>Similarly, we can construct the demand constraint</p>
+<pre class="r"><code># supply to a market meets its demand
+demand_rule = function(m, j) {
+  demand = 0
+  for (i in bi$list(m$plants)) {
+    demand = demand + m$x[tuple(i, j)]
+  }
+  expr = demand &gt;= m$dem[[j]]
+  return(expr)
+}
+M$demand_cons = pyo$Constraint(M$mkts, rule = demand_rule)  </code></pre>
+<pre class="python"><code>r.M.demand_cons.pprint()</code></pre>
+<pre><code>## demand_cons : Size=3, Index=mkts, Active=True
+##     Key      : Lower : Body                                        : Upper : Active
+##      chicago : 300.0 :   x[seattle,chicago] + x[san-diego,chicago] :  +Inf :   True
+##     new-york : 325.0 : x[seattle,new-york] + x[san-diego,new-york] :  +Inf :   True
+##       topeka : 275.0 :     x[seattle,topeka] + x[san-diego,topeka] :  +Inf :   True</code></pre>
+<p>Next, we construct the objective of total shipment cost and set it to be minimized.</p>
+<pre class="r"><code># objective to minimize shipping cost
+objective_rule = function(m) {
+  totcost = 0
+  for (i in bi$list(m$plants)) {
+    for (j in bi$list(m$mkts)) {
+      totcost = totcost + m$cost[tuple(i, j)] * m$x[tuple(i, j)]
+    }
+  }
+  return(totcost)
+}
+M$objective = pyo$Objective(rule = objective_rule, sense = pyo$minimize)</code></pre>
+<p>Since this a linear program, we use the open-source solver <a href="https://www.gnu.org/software/glpk/">glpk</a> to solve this.</p>
+<pre class="r"><code># solve using solver glpk
+opt = pyo$SolverFactory(&#39;glpk&#39;)
+results = opt$solve(M, logfile = &quot;tmp.log&quot;)
+cat(paste(readLines(&quot;tmp.log&quot;), collapse = &quot;\n&quot;))</code></pre>
+<pre><code>## Solver command line: [&#39;/opt/anaconda3/bin/glpsol&#39;, &#39;--write&#39;, &#39;/var/folders/h0/0h0h0yrs6f76syrmv1_q13mw0000gn/T/tmpxcmezycg.glpk.raw&#39;, &#39;--wglp&#39;, &#39;/var/folders/h0/0h0h0yrs6f76syrmv1_q13mw0000gn/T/tmppk6lx9f5.glpk.glp&#39;, &#39;--cpxlp&#39;, &#39;/var/folders/h0/0h0h0yrs6f76syrmv1_q13mw0000gn/T/tmp730zqy7u.pyomo.lp&#39;]
+## 
+## GLPSOL: GLPK LP/MIP Solver, v4.65
+## Parameter(s) specified in the command line:
+##  --write /var/folders/h0/0h0h0yrs6f76syrmv1_q13mw0000gn/T/tmpxcmezycg.glpk.raw
+##  --wglp /var/folders/h0/0h0h0yrs6f76syrmv1_q13mw0000gn/T/tmppk6lx9f5.glpk.glp
+##  --cpxlp /var/folders/h0/0h0h0yrs6f76syrmv1_q13mw0000gn/T/tmp730zqy7u.pyomo.lp
+## Reading problem data from &#39;/var/folders/h0/0h0h0yrs6f76syrmv1_q13mw0000gn/T/tmp730zqy7u.pyomo.lp&#39;...
+## 6 rows, 7 columns, 13 non-zeros
+## 51 lines were read
+## Writing problem data to &#39;/var/folders/h0/0h0h0yrs6f76syrmv1_q13mw0000gn/T/tmppk6lx9f5.glpk.glp&#39;...
+## 41 lines were written
+## GLPK Simplex Optimizer, v4.65
+## 6 rows, 7 columns, 13 non-zeros
+## Preprocessing...
+## 5 rows, 6 columns, 12 non-zeros
+## Scaling...
+##  A: min|aij| =  1.000e+00  max|aij| =  1.000e+00  ratio =  1.000e+00
+## Problem data seem to be well scaled
+## Constructing initial basis...
+## Size of triangular part is 5
+##       0: obj =   0.000000000e+00 inf =   9.000e+02 (3)
+##       4: obj =   1.662750000e+05 inf =   0.000e+00 (0)
+## *     6: obj =   1.536750000e+05 inf =   0.000e+00 (0)
+## OPTIMAL LP SOLUTION FOUND
+## Time used:   0.0 secs
+## Memory used: 0.0 Mb (40517 bytes)
+## Writing basic solution to &#39;/var/folders/h0/0h0h0yrs6f76syrmv1_q13mw0000gn/T/tmpxcmezycg.glpk.raw&#39;...
+## 22 lines were written</code></pre>
+<p>Next we display the results. It is a bit more verbose since we worked with the option of <code>convert = FALSE</code> resulting in explicitly extracting desired values.</p>
+<pre class="r"><code>res_L = list()
+k = 1
+for(i in bi$list(M$plants)) {
+    for(j in bi$list(M$mkts)) {
+        res_L[[k]] = list(plant = i, mkt = j, qty = py_to_r(M$x[tuple(i, j)]()))
+        k = k + 1
+  }
+}
+res_df = bind_rows(res_L)
+res_df</code></pre>
+<pre><code>## # A tibble: 6 x 3
+##   plant     mkt        qty
+##   &lt;chr&gt;     &lt;chr&gt;    &lt;dbl&gt;
+## 1 seattle   new-york     0
+## 2 seattle   chicago    300
+## 3 seattle   topeka       0
+## 4 san-diego new-york   325
+## 5 san-diego chicago      0
+## 6 san-diego topeka     275</code></pre>
+</div>
+<div id="a-few-more-examples" class="section level3">
+<h3>A Few More Examples</h3>
+<p>There are 3 more examples where I developed the pyomo model in R. I have listed them below along with location of the code.</p>
+<ul>
+<li>Single machine scheduling problem (<a href="https://notesofdabbler.github.io/R_pyomo/machine_scheduling.html">R code</a>): This <a href="https://nbviewer.jupyter.org/github/jckantor/ND-Pyomo-Cookbook/blob/master/notebooks/04.01-Machine-Bottleneck.ipynb">example</a> is taken from Jeffrey Kantor’s <a href="https://jckantor.github.io/ND-Pyomo-Cookbook/">pyomo cookbook</a> gallery. The goal here is to schedule a set of jobs which have a certain release date, due date and duration on a machine to minimize total delays. This is a mixed-integer linear program and the pyomo modeling uses the disjunction construct from the <a href="https://pyomo.readthedocs.io/en/stable/modeling_extensions/gdp.html">GDP</a> module to specify constraints that two jobs do not overlap in the machine at the same time.</li>
+<li>Optimal control (<a href="https://notesofdabbler.github.io/R_pyomo/optimal_control.html">R code</a>): Pyomo has a <a href="https://pyomo.readthedocs.io/en/stable/modeling_extensions/dae.html">DAE (Differential-Algebraic Equation)</a> module that makes it easy to specifiy dynamic optimization and control problems. The optimal control <a href="https://github.com/Pyomo/pyomo/blob/master/examples/dae/Optimal_Control.py">example</a> from pyomo repo is coded using R in this example.</li>
+<li>Kinetics Paramter Estimation (<a href="https://notesofdabbler.github.io/R_pyomo/parameter_estimation.html">R Code</a>): An example of parameter estimation for a reaction system is coded in this location. This example is from the book <a href="https://sites.engineering.ucsb.edu/~jbraw/chemreacfun/">Chemical Reactor Design and Analysis</a> by Rawlings and Ekerdt.</li>
+</ul>
+</div>
+<div id="summary" class="section level3">
+<h3>Summary</h3>
+<p>Here I covered two examples to show how to develop a pyomo model from R using the reticulate package. While it might still be easier to develop the pyomo model in python (since it was meant to be that way), I found that it is possible to develop pyomo models in R also fairly easily albeit with some modifications (some maybe less elegant compred to the python counterpart). It may still be better to develop more involved pyomo models in python but reticulate offers a way to develop simple to intermediate levels models directly in R. I am summarizing key learnings:</p>
+<ul>
+<li>Need to overload arithmetic operators to enable things like addition etc. between pyomo objects</li>
+<li>Use the option <code>convert = FALSE</code> to retain pyomo objects as python objects potentially avoid issues that are hard to troubleshoot.</li>
+<li>Lack of list comprehension in R makes some of the constraint specifications more verbose but still works.</li>
+<li>Need to be careful about indexing (sometimes need to explicitly specify a tuple and sometimes not)</li>
+</ul>
+</div>
+
+
+  
+<div class="prev-next-post pure-g">
+  <div class="pure-u-1-24" style="text-align: left;">
+    
+    <a href="../../../../2020/04/26/proofnowords/"><i class="fa fa-chevron-left"></i></a>
+    
+  </div>
+  <div class="pure-u-10-24">
+    
+    <nav class="prev">
+      <a href="../../../../2020/04/26/proofnowords/">Proofs without Words using gganimate</a>
+    </nav>
+    
+  </div>
+  <div class="pure-u-2-24">
+    &nbsp;
+  </div>
+  <div class="pure-u-10-24">
+    
+  </div>
+  <div class="pure-u-1-24" style="text-align: right;">
+    
+  </div>
+</div>
+
+
+
+  <div id="disqus_thread"></div>
+<script>
+(function() {
+var d = document, s = d.createElement('script');
+s.src = 'https://notesofdabbler.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+</div>
+
+</div>
+</div>
+
+
+<script src="../../../../js/math-code.js"></script>
+  <script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+  
+
+
+</body>
+</html>
